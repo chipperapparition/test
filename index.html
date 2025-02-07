@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>PesterTalk | Home</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #f8e8d8, #e6d2c0);
+            margin: 0;
+            padding: 0;
+        }
+        .navbar {
+            background: #c8a888;
+            padding: 20px;
+            color: white;
+            font-size: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            
+        }
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            margin: 0 20px;
+            font-weight: bold;
+        }
+        .navbar a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div style="font-weight: bold; font-size: 25px;">PesterTalk</div>
+        <div>
+            <a href="#">home</a>
+            <a href="#">profile</a>
+            <a href="#">messages</a>
+            <a href="#">settings</a>
+            <a href="signup.html">sign up</a>
+            <button id="theme-toggle">🌙</button>
+
+        </div>
+    </div>
+    <div class="feed">
+        <div class="post" data-post-id="1">
+            <div class="post-content">
+                <div class="post-main">
+                    <h3>lexi</h3>
+                    <img src="./images/vids/alpha-wolf.gif" class="medium-gif">
+                    <div class="like-section">
+                        <button class="like-btn">🤍</button>
+                        <span class="like-count">0</span> likes
+                    </div>
+                </div>
+                <div class="comment-section">
+                    <h4>comments</h4>
+                    <div class="comments"></div>
+                    <input type="text" class="comment-input" placeholder="comment here...">
+                    <button class="comment-btn">post</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="post" data-post-id="2">
+            <div class="post-content">
+                <div class="post-main">
+                    <h3>lexi</h3>
+                    <video controls width="75%">
+                        <source src="./images/vids/AB0DDD88-05CC-4E5D-B139-CA124D1A1397.mov">
+                    </video>
+                    <div class="like-section">
+                        <button class="like-btn">🤍</button>
+                        <span class="like-count">0</span> likes
+                    </div>
+                </div>
+                <div class="comment-section">
+                    <h4>comments</h4>
+                    <div class="comments"></div>
+                    <input type="text" class="comment-input" placeholder="comment here...">
+                    <button class="comment-btn">post</button>
+                </div>
+            </div>
+        </div>
+        
+        
+    </div>
+
+    <script>
+       document.addEventListener("DOMContentLoaded", function () {
+    const posts = document.querySelectorAll(".post");
+
+    posts.forEach(post => {
+        const postId = post.getAttribute("data-post-id");
+        const likeBtn = post.querySelector(".like-btn");
+        const likeCount = post.querySelector(".like-count");
+        const commentBtn = post.querySelector(".comment-btn");
+        const commentInput = post.querySelector(".comment-input");
+        const commentsContainer = post.querySelector(".comments");
+
+        // Load saved likes from LocalStorage
+        let likes = parseInt(localStorage.getItem(`likes_${postId}`)) || 0;
+        likeCount.textContent = likes;
+
+        if (localStorage.getItem(`liked_${postId}`) === "true") {
+            likeBtn.textContent = "🖤";
+        }
+
+        likeBtn.addEventListener("click", function () {
+            if (localStorage.getItem(`liked_${postId}`) === "true") {
+                likes--;
+                likeBtn.textContent = "🤍";
+                localStorage.setItem(`liked_${postId}`, "false");
+            } else {
+                likes++;
+                likeBtn.textContent = "🖤";
+                localStorage.setItem(`liked_${postId}`, "true");
+            }
+            likeCount.textContent = likes;
+            localStorage.setItem(`likes_${postId}`, likes);
+        });
+
+        // Load and display saved comments
+        let comments = JSON.parse(localStorage.getItem(`comments_${postId}`)) || [];
+        comments.forEach(comment => {
+            addCommentToUI(commentsContainer, comment);
+        });
+
+        commentBtn.addEventListener("click", function () {
+            const commentText = commentInput.value.trim();
+            if (commentText) {
+                comments.push(commentText);
+                localStorage.setItem(`comments_${postId}`, JSON.stringify(comments));
+                addCommentToUI(commentsContainer, commentText);
+                commentInput.value = "";
+            }
+        });
+
+        function addCommentToUI(container, text) {
+            const commentElement = document.createElement("div");
+            commentElement.classList.add("comment-item");
+
+            const commentText = document.createElement("span");
+            commentText.textContent = text;
+
+            const deleteBtn = document.createElement("button");
+            deleteBtn.classList.add("delete-comment");
+            deleteBtn.textContent = "✖";
+
+            commentElement.appendChild(commentText);
+            commentElement.appendChild(deleteBtn);
+            container.appendChild(commentElement);
+
+            // Delete comment functionality
+            deleteBtn.addEventListener("click", function () {
+                commentElement.style.opacity = "0";
+                setTimeout(() => {
+                    commentElement.remove();
+                    comments = comments.filter(comment => comment !== text);
+                    localStorage.setItem(`comments_${postId}`, JSON.stringify(comments));
+                }, 300);
+            });
+        }
+    });
+});
+
+document.getElementById("theme-toggle").addEventListener("click", function () {
+    document.body.classList.toggle("dark-mode");
+    localStorage.setItem("theme", document.body.classList.contains("dark-mode") ? "dark" : "light");
+});
+
+// Load saved theme
+if (localStorage.getItem("theme") === "dark") {
+    document.body.classList.add("dark-mode");
+}
+
+    </script>
+</body>
+</html>
